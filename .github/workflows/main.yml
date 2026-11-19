@@ -1,0 +1,104 @@
+name: Build iPad Hilfe unsigned IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      pocketbase_url:
+        description: PocketBase server URL to use as the app's initial serverURL
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-ipa:
+    runs-on: macos-26
+
+    steps:
+      - name: Require a release tag
+        if: github.ref_type != 'tag'
+        run: |
+          echo "Run this workflow using a release tag selected in the Ref selector."
+          exit 1
+
+      - name: Check out selected release
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set PocketBase URL in AppState
+        env:
+          POCKETBASE_URL: ${{ inputs.pocketbase_url }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          url = os.environ["POCKETBASE_URL"].strip()
+          parsed = urlparse(url)
+          if parsed.scheme not in ("http", "https") or not parsed.netloc:
+              raise SystemExit("PocketBase URL must be an absolute http:// or https:// URL.")
+
+          source = Path("iPad Hilfe/iPad Hilfe/AppState.swift")
+          contents = source.read_text(encoding="utf-8")
+          pattern = r'(@AppStorage\("serverURL"\)\s+var serverURL:\s+String\s*=\s*)""'
+          updated, count = re.subn(
+              pattern,
+              lambda match: match.group(1) + json.dumps(url, ensure_ascii=False),
+              contents,
+          )
+          if count != 1:
+              raise SystemExit(f"Expected exactly one serverURL default in {source}; found {count}.")
+
+          source.write_text(updated, encoding="utf-8")
+          print("Configured AppState.serverURL for this build.")
+          PY
+
+      - name: Build unsigned app
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/DerivedData"
+          xcodebuild \
+            -project "iPad Hilfe/iPad Hilfe.xcodeproj" \
+            -scheme "iPad Hilfe" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_ENTITLEMENTS='' \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+
+          APP_PATH="$(find "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos" -name '*.app' -print -quit)"
+          if [ -z "$APP_PATH" ]; then
+            echo "No built .app was found."
+            exit 1
+          fi
+
+          PACKAGE_DIR="$RUNNER_TEMP/unsigned-ipa"
+          rm -rf "$PACKAGE_DIR"
+          mkdir -p "$PACKAGE_DIR/Payload"
+          cp -R "$APP_PATH" "$PACKAGE_DIR/Payload/"
+
+          cd "$PACKAGE_DIR"
+          zip -qry "${RUNNER_TEMP}/${GITHUB_REF_NAME}-unsigned.ipa" Payload
+
+          echo "APP_PATH=$APP_PATH"
+          echo "IPA_PATH=${RUNNER_TEMP}/${GITHUB_REF_NAME}-unsigned.ipa"
+
+      - name: Upload unsigned IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.ref_name }}-unsigned-ipa
+          path: ${{ runner.temp }}/${{ github.ref_name }}-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
