@@ -1,5 +1,7 @@
 # iPadHilfe
-iPad Hilfe Ist eine Open Source Ticketing Software für iOS und iPadOS Geräte. Die App wurde mit Unterstützung von KI in Swift entwickelt. Alle Daten werden in pocketbase gespeichert. Weitere infos in der README.md
+iPad Hilfe Ist eine Open Source Ticketing Software für iOS und iPadOS Geräte. Die App wurde mit Unterstützung von KI in Swift entwickelt. Alle Daten werden in PocketBase gespeichert. Die App wurde dafür entwickelt, damit Nutzer von Apple Geräten intern Probleme an ihre Administratoren melden können.
+
+
 Diese Repository enthält nur den Quellcode und keine prekompilierten Pakete. 
 
 Um die app zu Kompilieren wird folgendes benötigt:
