@@ -16,11 +16,12 @@ Befor sie die app Kompilieren nehmen sie bitte folgende Änderungen am Code vor:
 
 Kompilieren sie die App:
   1. Öffnen sie ein Terminal Fenster in dem Ordner in welchem sich die .xcodeproj Datei befindet
-  2. Führen sie diesen Befehl aus: xcodebuild clean build -scheme "iPad Hilfe" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
-  3. über ** BUILD SUCCEEDED ** wird der Pfad der neu kompilierten Datei angezeigt er sollte so aussehen: /Users/Ihr-Nutzername/Library/Developer/Xcode/DerivedData/Projekt-name-zufälliger-string/Build/Products/Release-iphoneos/ Kopieren sie diesen und öffnen sie Finder
-  4. Drücken sie Shift + command + g und fügen sie den Pfad ein
-  5. Kopieren sie die .app Datei auf ihren Desktop
-  6. erstellen sie einen neuen Ordner namens 'Payload' auf ihrem desktop und verschieben sie die .app Datei hinein
-  7. Erstellen sie ein zip Archiv aus dem Ordner und benennen sie die Datei 'Payload.zip' zu 'Payload.ipa' um
+  2. Führen sie diesen Befehl aus:
+<code> xcodebuild clean build -scheme "iPad Hilfe" -sdk iphoneos -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO </code>
+  4. über ** BUILD SUCCEEDED ** wird der Pfad der neu kompilierten Datei angezeigt er sollte so aussehen: <code> /Users/Ihr-Nutzername/Library/Developer/Xcode/DerivedData/Projekt-name-zufälliger-string/Build/Products/Release-iphoneos/ </code> Kopieren sie diesen und öffnen sie Finder
+  5. Drücken sie Shift + command + g und fügen sie den Pfad ein
+  6. Kopieren sie die .app Datei auf ihren Desktop
+  7. erstellen sie einen neuen Ordner namens 'Payload' auf ihrem desktop und verschieben sie die .app Datei hinein
+  8. Erstellen sie ein zip Archiv aus dem Ordner und benennen sie die Datei 'Payload.zip' zu 'Payload.ipa' um
 
 Installieren sie jetzt die App mit dem Sideloader ihres Vertrauens (empfohlen: Altstore classic ; iLoader ; Sideloadly)
